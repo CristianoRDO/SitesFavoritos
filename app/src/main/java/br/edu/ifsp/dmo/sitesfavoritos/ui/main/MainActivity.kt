@@ -5,59 +5,52 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.edu.ifsp.dmo.sitesfavoritos.R
-import br.edu.ifsp.dmo.sitesfavoritos.data.model.Site
 import br.edu.ifsp.dmo.sitesfavoritos.databinding.ActivityMainBinding
 import br.edu.ifsp.dmo.sitesfavoritos.databinding.SitesDialogBinding
 import br.edu.ifsp.dmo.sitesfavoritos.ui.adapter.SiteAdapter
-import br.edu.ifsp.dmo.sitesfavoritos.ui.listener.SiteitemClickListener
+import br.edu.ifsp.dmo.sitesfavoritos.ui.listener.SiteItemClickListener
 
-class MainActivity : AppCompatActivity(), SiteitemClickListener {
+class MainActivity : AppCompatActivity(), SiteItemClickListener {
 
     private lateinit var binding: ActivityMainBinding
-    private var datasource = ArrayList<Site>()
-
+    private lateinit var viewModel: MainViewModel
+    private lateinit var adapter: SiteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = ViewModelProvider(this ).get(MainViewModel::class.java)
+
         configListeners()
         configRecyclerView()
+        configObservers()
     }
 
     private fun configListeners(){
-        binding.buttonAdd.setOnClickListener{handleAddSite()}
+        binding.buttonAdd.setOnClickListener{ handleAddSite() }
+    }
+
+    private fun configObservers(){
+        viewModel.deletedSite.observe(this, Observer { Toast.makeText(this, "Site Deletado com Sucesso", Toast.LENGTH_SHORT).show()})
+        viewModel.insertedSite.observe(this, Observer { Toast.makeText(this, "Site Inserido com Sucesso", Toast.LENGTH_SHORT).show()})
+        viewModel.favoritedSite.observe(this, Observer { Toast.makeText(this, "Estado Atualizado com Sucesso", Toast.LENGTH_SHORT).show()})
+        viewModel.sites.observe(this, Observer { adapter.updateDataset(it) })
     }
 
     private fun configRecyclerView() {
-        val adapter = SiteAdapter(this, datasource, this)
-        val layoutManager: RecyclerView.LayoutManager =
-            LinearLayoutManager(this)
+        adapter = SiteAdapter(this, mutableListOf(), this)
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         binding.recyclerviewSites.layoutManager = layoutManager
         binding.recyclerviewSites.adapter = adapter
-    }
-
-    private fun notifyAdapter() {
-        val adapter = binding.recyclerviewSites.adapter
-        adapter?.notifyDataSetChanged()
-    }
-
-    override fun clickSiteItem(position: Int) {
-        val site = datasource[position]
-        val mIntent = Intent(Intent.ACTION_VIEW)
-        mIntent.setData(Uri.parse("http://" + site.url))
-        startActivity(mIntent)
-    }
-
-    override fun clickHeartSiteItem(position: Int) {
-        val site = datasource[position]
-        site.favorito = !site.favorito
-        notifyAdapter()
     }
 
     private fun handleAddSite(){
@@ -68,13 +61,10 @@ class MainActivity : AppCompatActivity(), SiteitemClickListener {
             .setTitle(R.string.novo_site)
             .setPositiveButton(R.string.salvar,
                 DialogInterface.OnClickListener { dialog, which ->
-                    datasource.add(
-                        Site(
+                    viewModel.insertSite(
                             bindingDialog.edittextApelido.text.toString(),
                             bindingDialog.edittextUrl.text.toString()
-                        )
                     )
-                    notifyAdapter()
                     dialog.dismiss()
                 })
             .setNegativeButton(R.string.cancelar,
@@ -84,5 +74,16 @@ class MainActivity : AppCompatActivity(), SiteitemClickListener {
         val dialog = builder.create()
         dialog.show()
 
+    }
+
+    override fun clickSiteItem(position: Int) {
+        val site = viewModel.getSite(position)
+        val mIntent = Intent(Intent.ACTION_VIEW)
+        mIntent.setData(Uri.parse("http://" + site.url))
+        startActivity(mIntent)
+    }
+
+    override fun clickHeartSiteItem(position: Int) {
+        viewModel.favoriteSite(position)
     }
 }

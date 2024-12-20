@@ -1,6 +1,7 @@
 package br.edu.ifsp.dmo.sitesfavoritos.ui.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,9 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import br.edu.ifsp.dmo.sitesfavoritos.R
 import br.edu.ifsp.dmo.sitesfavoritos.data.model.Site
 import br.edu.ifsp.dmo.sitesfavoritos.databinding.ItemViewBinding
-import br.edu.ifsp.dmo.sitesfavoritos.ui.listener.SiteitemClickListener
+import br.edu.ifsp.dmo.sitesfavoritos.ui.listener.SiteItemClickListener
 
-class SiteAdapter(val context: Context, val dataset: List<Site>, val listener: SiteitemClickListener): RecyclerView.Adapter<SiteAdapter.ViewHolder>() {
+
+class SiteAdapter(
+        private val context: Context,
+        private var dataset: List<Site>,
+        private val listener: SiteItemClickListener
+): RecyclerView.Adapter<SiteAdapter.ViewHolder>() {
+
     class ViewHolder(view: View): RecyclerView.ViewHolder(view){
         val binding: ItemViewBinding = ItemViewBinding.bind(view)
     }
@@ -33,11 +40,16 @@ class SiteAdapter(val context: Context, val dataset: List<Site>, val listener: S
         }
 
         holder.binding.imgHeart.setOnClickListener{listener.clickHeartSiteItem(position)}
-
         holder.binding.layoutItem.setOnClickListener{listener.clickSiteItem(position)}
     }
 
     override fun getItemCount(): Int {
         return dataset.size
     }
+
+    fun updateDataset(newDataset: List<Site>) {
+        this.dataset = newDataset
+        notifyDataSetChanged()
+    }
+
 }
