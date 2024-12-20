@@ -13,4 +13,6 @@ object SiteDao {
     fun getAll() = sites
 
     fun getSite(position: Int) = sites.get(position)
+
+    fun delete(position: Int) = sites.removeAt(position)
 }

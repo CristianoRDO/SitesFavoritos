@@ -15,8 +15,8 @@ class MainViewModel: ViewModel() {
     private val _insertedSite = MutableLiveData<Boolean>()
     val insertedSite: LiveData<Boolean> = _insertedSite
 
-    private val _deleteSite = MutableLiveData<Boolean>()
-    val deletedSite: LiveData<Boolean> = _deleteSite
+    private val _deletedSite = MutableLiveData<Boolean>()
+    val deletedSite: LiveData<Boolean> = _deletedSite
 
     private val _favoritedSite = MutableLiveData<Boolean>()
     val favoritedSite: LiveData<Boolean> = _favoritedSite
@@ -55,5 +55,11 @@ class MainViewModel: ViewModel() {
             _favoritedSite.value = true
             load()
         }
+    }
+
+    fun deleteSite(position: Int){
+        dao.delete(position)
+        _deletedSite.value = true
+        load()
     }
 }

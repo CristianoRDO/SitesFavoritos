@@ -86,4 +86,8 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
     override fun clickHeartSiteItem(position: Int) {
         viewModel.favoriteSite(position)
     }
+
+    override fun clickDeleteSiteItem(position: Int) {
+        viewModel.deleteSite(position)
+    }
 }
