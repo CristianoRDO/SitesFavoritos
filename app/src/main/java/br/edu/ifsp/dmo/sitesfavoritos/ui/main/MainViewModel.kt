@@ -28,33 +28,28 @@ class MainViewModel: ViewModel() {
 
     private fun mock() {
         dao.add(Site("Github", "github.com/CristianoRDO"))
-        dao.add(Site("Github", "github.com/CristianoRDO"))
     }
 
     fun load() {
         _sites.value = dao.getAll()
     }
 
-    fun insertSite(apelido: String, url: String){
-        val site = Site(apelido, url)
-        dao.add(site)
-
-        _insertedSite.value = true
-        load()
-    }
-
     fun getSite(position: Int): Site{
         return dao.getSite(position)
     }
 
+    fun insertSite(apelido: String, url: String){
+        val site = Site(apelido, url)
+        dao.add(site)
+        _insertedSite.value = true
+        load()
+    }
+
     fun favoriteSite(position: Int){
         val site = dao.getSite(position)
-
-        if(site != null){
-            site.favorito = !site.favorito
-            _favoritedSite.value = true
-            load()
-        }
+        site.favorito = !site.favorito
+        _favoritedSite.value = true
+        load()
     }
 
     fun deleteSite(position: Int){

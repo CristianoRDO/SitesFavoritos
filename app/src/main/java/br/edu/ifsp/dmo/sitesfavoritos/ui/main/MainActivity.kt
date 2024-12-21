@@ -40,9 +40,24 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
     }
 
     private fun configObservers(){
-        viewModel.deletedSite.observe(this, Observer { Toast.makeText(this, "Site Deletado com Sucesso", Toast.LENGTH_SHORT).show()})
-        viewModel.insertedSite.observe(this, Observer { Toast.makeText(this, "Site Inserido com Sucesso", Toast.LENGTH_SHORT).show()})
-        viewModel.favoritedSite.observe(this, Observer { Toast.makeText(this, "Estado Atualizado com Sucesso", Toast.LENGTH_SHORT).show()})
+        viewModel.deletedSite.observe(this, Observer {
+            if(it){
+                Toast.makeText(this, getString(R.string.site_deleted_success), Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        viewModel.insertedSite.observe(this, Observer {
+            if(it){
+                Toast.makeText(this, getString(R.string.site_inserted_success), Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        viewModel.favoritedSite.observe(this, Observer {
+            if(it){
+                Toast.makeText(this, getString(R.string.state_updated_successfully), Toast.LENGTH_SHORT).show()
+            }
+        })
+
         viewModel.sites.observe(this, Observer { adapter.updateDataset(it) })
     }
 
@@ -51,6 +66,21 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
         binding.recyclerviewSites.layoutManager = layoutManager
         binding.recyclerviewSites.adapter = adapter
+    }
+
+    override fun clickSiteItem(position: Int) {
+        val site = viewModel.getSite(position)
+        val mIntent = Intent(Intent.ACTION_VIEW)
+        mIntent.setData(Uri.parse("http://" + site.url))
+        startActivity(mIntent)
+    }
+
+    override fun clickHeartSiteItem(position: Int) {
+        viewModel.favoriteSite(position)
+    }
+
+    override fun clickDeleteSiteItem(position: Int) {
+        viewModel.deleteSite(position)
     }
 
     private fun handleAddSite(){
@@ -73,21 +103,5 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
                 })
         val dialog = builder.create()
         dialog.show()
-
-    }
-
-    override fun clickSiteItem(position: Int) {
-        val site = viewModel.getSite(position)
-        val mIntent = Intent(Intent.ACTION_VIEW)
-        mIntent.setData(Uri.parse("http://" + site.url))
-        startActivity(mIntent)
-    }
-
-    override fun clickHeartSiteItem(position: Int) {
-        viewModel.favoriteSite(position)
-    }
-
-    override fun clickDeleteSiteItem(position: Int) {
-        viewModel.deleteSite(position)
     }
 }
