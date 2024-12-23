@@ -7,7 +7,7 @@ import br.edu.ifsp.dmo.sitesfavoritos.data.dao.SiteDao
 import br.edu.ifsp.dmo.sitesfavoritos.data.model.Site
 
 class MainViewModel: ViewModel() {
-    val dao = SiteDao
+    private val dao = SiteDao
 
     private val _sites = MutableLiveData<List<Site>>()
     val sites: LiveData<List<Site>> = _sites
